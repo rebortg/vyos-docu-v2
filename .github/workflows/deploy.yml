@@ -19,8 +19,16 @@ jobs:
         with:
           node-version: 18
 
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
       - name: Install dependencies
         run: yarn install
+
       - name: Build website
         run: yarn build
 
