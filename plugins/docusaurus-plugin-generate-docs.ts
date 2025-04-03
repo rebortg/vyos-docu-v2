@@ -1,32 +1,48 @@
-import { spawn } from 'child_process';
+import { spawnSync } from 'child_process';
 import path from 'path';
 import type { Plugin } from '@docusaurus/types';
 
 export default function generateDocsPlugin(context: any, options: any): Plugin<void> {
+  let hasRun = false;
+
+  const runPythonScript = () => {
+    if (hasRun) {
+      console.log('Python script already executed, skipping...');
+      return;
+    }
+
+    hasRun = true;
+    const result = spawnSync('python3', [
+      path.join(context.siteDir, 'scripts/generate_docs.py')
+    ]);
+
+    if (result.error) {
+      throw new Error(`Failed to start Python script: ${result.error.message}`);
+    }
+
+    if (result.status !== 0) {
+      throw new Error(`Python script exited with code ${result.status}`);
+    }
+
+    // Log output for debugging
+    if (result.stdout) {
+      console.log(`Python output: ${result.stdout.toString()}`);
+    }
+    if (result.stderr) {
+      console.error(`Python error: ${result.stderr.toString()}`);
+    }
+  };
+
   return {
     name: 'docusaurus-plugin-generate-docs',
-    async loadContent(): Promise<void> {
-      return new Promise((resolve, reject) => {
-        const pythonScript = spawn('python3', [
-          path.join(context.siteDir, 'scripts/generate_docs.py')
-        ]);
-
-        pythonScript.stdout.on('data', (data: Buffer) => {
-          console.log(`Python output: ${data.toString()}`);
-        });
-
-        pythonScript.stderr.on('data', (data: Buffer) => {
-          console.error(`Python error: ${data.toString()}`);
-        });
-
-        pythonScript.on('close', (code: number | null) => {
-          if (code !== 0) {
-            reject(`Python script exited with code ${code}`);
-          } else {
-            resolve();
-          }
-        });
-      });
-    }
+    
+    loadContent(): void {
+      try {
+        runPythonScript();
+      } catch (error) {
+        console.error('Error in loadContent:', error);
+        throw error;
+      }
+    },
   };
 } 

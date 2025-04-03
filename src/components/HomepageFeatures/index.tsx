@@ -12,7 +12,7 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: 'Get / Build VyOS',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    Svg: require('@site/static/img/vyos_logo.svg').default,
     description: (
       <>
         Quickly Build your own Image or take a look at how to download a
@@ -22,7 +22,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Install VyOS',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    Svg: require('@site/static/img/vyos_logo.svg').default,
     description: (
       <>
         Read about how to install VyOS on Bare Metal or in a Virtual Environment
@@ -32,7 +32,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Configuration and Operation',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    Svg: require('@site/static/img/vyos_logo.svg').default,
     description: (
       <>
         Use the Quickstart Guide, to have a fast overview.
@@ -42,7 +42,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Automate',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    Svg: require('@site/static/img/vyos_logo.svg').default,
     description: (
       <>
         Integrate VyOS in your automation Workflow with Ansible,
@@ -52,7 +52,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Examples',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    Svg: require('@site/static/img/vyos_logo.svg').default,
     description: (
       <>
         Get some inspiration from the Configuration Blueprints
@@ -62,7 +62,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Contribute and Community',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    Svg: require('@site/static/img/vyos_logo.svg').default,
     description: (
       <>        
         There are many ways to contribute to the project.

@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'VyOS Documentation',
+  title: 'VyOS User Guide',
   tagline: 'Circinus Branch',
   favicon: 'img/favicon.ico',
 
@@ -73,18 +73,13 @@ const config: Config = {
       },
     },
     navbar: {
-      title: 'My Site',
+      title: 'VyOS User Guide',
       logo: {
-        alt: 'My Site Logo',
-        src: 'img/logo.svg',
+        alt: 'VyOS',
+        src: 'img/vyos_logo.svg',
       },
       items: [
-        {
-          type: 'docSidebar',
-          sidebarId: 'documentationSidebar',
-          position: 'left',
-          label: 'Documentation',
-        },
+
         {
           href: 'https://github.com/facebook/docusaurus',
           label: 'GitHub',

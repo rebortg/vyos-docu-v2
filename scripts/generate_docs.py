@@ -4,6 +4,11 @@ import yaml
 import hashlib
 from jinja2 import Environment, FileSystemLoader
 
+
+# Global parameters for input files
+XML_CACHE_FILE = "xml_cache.json"
+XML_OP_CACHE_FILE = "xml_op_cache.json"
+
 def flatten_json_cfg(d, commandname='', sep=' '):
     '''
     flatten the json data from cfg tree structure to a flat list of dictionaries
@@ -73,7 +78,7 @@ def render_command(command, env, command_hashtable, template_commands, jinja_tem
     return text
 
 
-def collect_templates_content(fileextention='md'):
+def collect_templates_content():
     '''
     collect all template files in the templates directory
     return a list of a dictionary with the following keys:
@@ -85,17 +90,20 @@ def collect_templates_content(fileextention='md'):
     template_files = []
     for root, _, files in os.walk('templates'):
         for filename in files:
-            if filename.endswith(fileextention):
-                filepath = os.path.join(root, filename)
-                rel_path = os.path.relpath(filepath, 'templates')
-                content = open(filepath, 'r', encoding='utf-8').read()
+            filepath = os.path.join(root, filename)
+            rel_path = os.path.relpath(filepath, 'templates')
+            content = open(filepath, 'r', encoding='utf-8').read()
+            if filename.endswith('.mdx'):            
                 template_files.append({
                     'filepath': rel_path,
                     'yaml_header': yaml.safe_load(content.split('---')[1]),
                     'content': content
                 })
+            if filename.endswith('.yml'):
+                save_documentation_file({'filepath': rel_path,}, content)
 
     return template_files
+
 
 def generate_hash(command):
     '''
@@ -154,15 +162,39 @@ def extract_command_for_template(commands, hashtable, template_commands):
     return commands_for_template, used_commandnames
 
 
+def save_documentation_file(template_file, content):
+    """
+    Save new file
+    
+    template_file: Dictionary containing the template file information
+    content: The content to write to the file
+    """
+    full_path = f"docs/{template_file['filepath']}"
+    try:
+        # Create all required directories
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        
+        # Write the content to file
+        with open(full_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        
+        print(f"Generated documentation file: {full_path}")
+    except Exception as e:
+        print(f"Error saving documentation file {full_path}: {str(e)}")
+        raise
+
+
 if __name__ == '__main__':
+    print("Starting documentation generation process")
+    
     env = Environment(
         loader=FileSystemLoader('scripts'),
         trim_blocks=True,
         lstrip_blocks=True
     )
 
-    data_cfg = json.load(open("xml_cache.json"))
-    data_opmode = json.load(open("xml_op_cache.json"))
+    data_cfg = json.load(open(XML_CACHE_FILE))
+    data_opmode = json.load(open(XML_OP_CACHE_FILE))
 
     # delete empty node_data object
     data_cfg.pop('node_data')
@@ -183,22 +215,6 @@ if __name__ == '__main__':
     # Sort data by commandname
     data_cfg = sorted(data_cfg, key=lambda x: x['commandname'])
     data_opmode = sorted(data_opmode, key=lambda x: x['commandname'])
-
-    '''
-    debug:
-    get all constraints to find a way to
-    get rid of <tag> in commandnames
-    '''
-    constraints = []
-    for cmd in data_cfg:
-        if cmd['node_type'] == 'tag':
-            if cmd['constraints'] is not None:
-                if cmd['constraints'] not in constraints:
-                    constraints.append(cmd['constraints'])
-
-    '''
-    debug: end
-    '''
 
     # generate a hashtable of the content per commandname
     cfg_command_hashtable = generate_command_hashtable(data_cfg)
@@ -228,7 +244,11 @@ if __name__ == '__main__':
             for command in opmode:
                 new_content += render_command(command, env, op_command_hashtable, template_file['yaml_header']['opmode'], 'opmode.md.j2')
             
+        # Save the generated documentation
+        save_documentation_file(template_file, new_content)
 
-        # save file
-        with open(f"docs/{template_file['filepath']}", 'w', encoding='utf-8') as f:
-            f.write(new_content)
+    print("")
+    print("Summary:")
+    print(f"- Configuration commands processed: {len(used_cf_commandnames)}")
+    print(f"- Operational mode commands processed: {len(used_opmode_commandnames)}")
+    print(f"- Total files generated: {len(template_files)}")
